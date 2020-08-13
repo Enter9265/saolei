@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chen.dao.StudentDao">
+
+
+    <select id="selectAll" resultType="com.chen.pojo.Student">
+        select * from student
+    </select>
+
+
+    <select id="getUserByPage" resultType="com.chen.pojo.Students">
+        select student.name as studentName,teacher.course as course,grade from grade
+        LEFT JOIN student
+        on grade.studentId = student.id
+        left join teacher
+        on grade.subjectId= teacher.id
+        HAVING 1=1
+        <!-- 知识点 -->
+        <if test="map!=null">
+            <foreach item="value" index="key" collection="map" >
+                and ${key} = #{value}
+            </foreach>
+        </if>
+        limit #{currentPage},#{pageSize}
+    </select>
+    <!--<foreach collection="map" item="knowledge" separator=","
+                     open="(" close=")">
+                #{knowledge}
+            </foreach>-->
+</mapper>

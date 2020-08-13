@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--设置vue管理的视图-->
+<div id="app">
+    <p>{{ list }}</p>
+</div>
+
+<!--引入vue.js文件-->
+<script src="js/vue.js"></script>
+<script src="js/axios-0.18.0.js"></script>
+<!--实例化vue对象-->
+<script type="text/javascript">
+    new Vue({
+        el : '#app',
+        data : {
+            list : '我是模拟数据.............'
+        }
+    });
+</script>
+</body>
+
+</html>
