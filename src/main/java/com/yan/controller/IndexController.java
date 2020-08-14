@@ -14,12 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/sweep")
@@ -53,10 +49,7 @@ public class IndexController {
 
                         str = cookie.getValue();
                         if (x == 0 && y == 0) {//获取用户是否有未结束的游戏
-                            //                        User user1 = maps.get(str);
                             User user1 = (User) redisTemplate.boundValueOps(str).get();
-//                            String user2 = (String) redisTemplate.boundValueOps(str).get();
-//                            User user1 = objectMapper.readValue(user2, User.class);
                             if (user1 != null) {
                                 return new Result(true, "获取成功", user1);
                             } else {
@@ -81,13 +74,7 @@ public class IndexController {
         int x1 = user.getX();
         int y1 = user.getY();
         user.setSurplus(x1 * y1);
-        String s = null;
-        try {
-            s = objectMapper.writeValueAsString(user);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-//        redisTemplate.boundValueOps(str).set(s);
+
         redisTemplate.boundValueOps(str).set(user);
         return new Result(true, "获取成功", user);
     }
@@ -102,7 +89,6 @@ public class IndexController {
     public Result select(int x, int y, HttpServletRequest request) {
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
 
             Cookie[] cookies = request.getCookies();
             String str = null;
@@ -114,10 +100,11 @@ public class IndexController {
                     }
                 }
             }
-//        User user = maps.get(str);
             User user = (User) redisTemplate.boundValueOps(str).get();
-//            String user2 = (String) redisTemplate.boundValueOps(str).get();
-//            User user = objectMapper.readValue(user2, User.class);
+
+            if (user == null){
+                return new Result(false, "请重新开始");
+            }
 
             User user1 = indexService.select(user, x, y);
             int size = user1.getSet().size();
@@ -129,13 +116,15 @@ public class IndexController {
             int stepSize = user1.getStepSize() + 1;
             user1.setStepSize(stepSize);
 
-//        if (user1.)
+            if (user1.isState()){
+                redisTemplate.boundValueOps(str).set(user1);
+                return new Result(true, "获取成功", user1);
+            }else {
+                redisTemplate.delete(str);
+                return new Result(true, "失败,游戏结束", user1);
+            }
 
-//            String s = objectMapper.writeValueAsString(user1);
-//            redisTemplate.boundValueOps(str).set(s);
-            redisTemplate.boundValueOps(str).set(user1);
 
-            return new Result(true, "获取成功", user1);
         } catch (Exception e) {
             e.printStackTrace();
             return new Result(false, "系统出错");
